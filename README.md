@@ -29,3 +29,9 @@ then
 	sudo chmod +x /usr/bin/docker-compose
 fi
 ```
+
+# Clone repository
+```
+cd $HOME && rm -rf lava-provider-monitoring
+git clone https://github.com/kj89/lava-provider-monitoring.git
+```
