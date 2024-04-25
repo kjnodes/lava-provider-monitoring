@@ -1,48 +1,39 @@
 # Install updates and dependencies
-```
+```bash
 sudo apt-get update
 sudo apt install jq python3-pip -y
 ```
 
 # Install docker
-```
-if ! command -v docker &> /dev/null
-then
-    echo -e "\e[1m\e[32m3.1 Installing Docker... \e[0m" && sleep 1
-    sudo apt-get install ca-certificates curl gnupg lsb-release wget -y
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    sudo chmod a+r /usr/share/keyrings/docker-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt-get update
-    sudo apt-get install docker-ce docker-ce-cli containerd.io -y
-fi
+```bash
+sudo apt-get install ca-certificates curl gnupg lsb-release wget -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+sudo chmod a+r /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 ```
 
 # Install docker compose
-```
-docker-compose version
-if [ $? -ne 0 ]
-then
-    echo -e "\e[1m\e[32m4.1 Installing Docker Compose... \e[0m" && sleep 1
-	docker_compose_version=$(wget -qO- https://api.github.com/repos/docker/compose/releases/latest | jq -r ".tag_name")
-	sudo wget -O /usr/bin/docker-compose "https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m`"
-	sudo chmod +x /usr/bin/docker-compose
-fi
+```bash
+docker_compose_version=$(wget -qO- https://api.github.com/repos/docker/compose/releases/latest | jq -r ".tag_name")
+sudo wget -O /usr/bin/docker-compose "https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m`"
+sudo chmod +x /usr/bin/docker-compose
 ```
 
 # Clone repository
-```
+```bash
 cd $HOME && rm -rf lava-provider-monitoring
 git clone https://github.com/kj89/lava-provider-monitoring.git
 ```
 
 # Copy _.env.example_ into _.env_
-```
+```bash
 cp $HOME/lava-provider-monitoring/config/.env.example $HOME/lava-provider-monitoring/config/.env
 ```
 
 # Update values in _.env_ file
-```
+```bash
 vim $HOME/lava-provider-monitoring/config/.env
 ```
 
@@ -52,19 +43,19 @@ vim $HOME/lava-provider-monitoring/config/.env
 | TELEGRAM_TOKEN | Your telegram bot access token you can get from [@botfather](https://telegram.me/botfather). To generate new token just follow a few simple steps described [here](https://core.telegram.org/bots#6-botfather) |
 
 # Export _.env_ file values into _.bash_profile_
-```
+```bash
 echo "export $(xargs < $HOME/lava-provider-monitoring/config/.env)" > $HOME/.bash_profile
 source $HOME/.bash_profile
 ```
 
 # Adjust IP:PORT to match lava provider metrics endpoint in prometheus config file
-```
+```bash
 vim $HOME/lava-provider-monitoring/prometheus/prometheus.yml
 ```
 
 # Run docker-compose
 Deploy the monitoring stack
-```
+```bash
 cd $HOME/lava-provider-monitoring && docker-compose up -d
 ```
 
@@ -77,11 +68,13 @@ ports used:
 # Install lava-exporter
 
 ## Download binaries
+```bash
 sudo curl -Ls https://github.com/MELLIFERA-Labs/lava-exporter/releases/download/v1.0.0/lava-exporter-linux-v1.0.0-amd64 > /usr/local/bin/lava-exporter
 sudo chmod +x /usr/local/bin/lava-exporter
+```
 
 ## Set config
-```
+```bash
 mkdir -p $HOME/lava-exporter
 sudo tee $HOME/lava-exporter/config.toml > /dev/null << EOF
 # array of lava rest api endpoints. Will be used next URL if previous is down
@@ -97,7 +90,7 @@ EOF
 ```
 
 ## Create service
-```
+```bash
 sudo tee /etc/systemd/system/lava-exporter.service > /dev/null << EOF
 [Unit]
 Description=Lava Exporter
@@ -119,6 +112,6 @@ systemctl daemon-reload
 ```
 
 ## Start service and check logs
-```
+```bash
 systemctl restart lava-exporter && journalctl -fu lava-exporter -o cat
 ```
