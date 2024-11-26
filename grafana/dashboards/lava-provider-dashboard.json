@@ -24,7 +24,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -98,45 +97,57 @@
             "type": "prometheus",
             "uid": "z1Pbbo1Vk"
           },
-          "editorMode": "code",
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(spec) (lava_provider_total_relays_serviced{job=\"provider-$environment\"})",
+          "expr": "sum by(spec) (lava_provider_total_relays_serviced{instance=\"$environment\"})",
           "format": "table",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": true,
           "interval": "",
           "legendFormat": "{{spec}}",
           "range": false,
-          "refId": "CU Relayed"
+          "refId": "CU Relayed",
+          "useBackend": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(spec) (lava_provider_total_cu_serviced{job=\"provider-$environment\"})",
+          "expr": "sum by(spec) (lava_provider_total_cu_serviced{instance=\"$environment\"})",
           "format": "table",
+          "fullMetaSearch": false,
           "hide": false,
+          "includeNullMetadata": true,
           "instant": true,
           "legendFormat": "{{spec}}",
           "range": false,
-          "refId": "CU Serviced"
+          "refId": "CU Serviced",
+          "useBackend": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "sum by(spec) (lava_provider_total_cu_paid{job=\"provider-$environment\"})",
+          "expr": "sum by(spec) (lava_provider_total_cu_paid{instance=\"$environment\"})",
           "format": "table",
+          "fullMetaSearch": false,
           "hide": false,
+          "includeNullMetadata": true,
           "instant": true,
           "legendFormat": "{{spec}}",
           "range": false,
-          "refId": "CU Paid"
+          "refId": "CU Paid",
+          "useBackend": false
         }
       ],
       "title": "CU Statistics",
@@ -256,7 +267,7 @@
             "uid": "z1Pbbo1Vk"
           },
           "editorMode": "code",
-          "expr": "avg by(spec) (sum by(spec) (rate(lava_provider_last_serviced_block_update_time_seconds{job=\"provider-$environment\"}[1m])))",
+          "expr": "avg by(spec) (sum by(spec) (rate(lava_provider_last_serviced_block_update_time_seconds{instance=\"$environment\"}[1m])))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -342,7 +353,7 @@
             "uid": "z1Pbbo1Vk"
           },
           "editorMode": "code",
-          "expr": "lava_provider_frozen_status{job=\"provider-$environment\"}",
+          "expr": "lava_provider_frozen_status{instance=\"$environment\"}",
           "interval": "",
           "legendFormat": "{{chain}}",
           "range": true,
@@ -410,7 +421,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "lava_latest_block{job=\"provider-$environment\",spec!~\"lava\"}",
+          "expr": "lava_latest_block{instance=\"$environment\",spec!~\"lava\"}",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -488,7 +499,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(spec) (increase(lava_provider_total_errored{job=\"provider-$environment\"}[24h]))",
+          "expr": "sum by(spec) (increase(lava_provider_total_errored{instance=\"$environment\"}[24h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -569,7 +580,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"availability\", job=\"provider-$environment\"})",
+          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"availability\", instance=\"$environment\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -650,7 +661,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"latency\", job=\"provider-$environment\"})",
+          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"latency\", instance=\"$environment\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -731,7 +742,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"sync/freshness\", job=\"provider-$environment\"})",
+          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"sync/freshness\", instance=\"$environment\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -828,7 +839,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"availability\", job=\"provider-$environment\"})*100",
+          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"availability\", instance=\"$environment\"})*100",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -925,7 +936,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"latency\", job=\"provider-$environment\"})*100",
+          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"latency\", instance=\"$environment\"})*100",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -1022,7 +1033,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"sync/freshness\", job=\"provider-$environment\"})*100",
+          "expr": "avg by(spec) (lava_consumer_QoS{qos_metric=\"sync/freshness\", instance=\"$environment\"})*100",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}",
@@ -1179,7 +1190,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(apiInterface) (increase(lava_provider_total_cu_serviced{job=\"provider-$environment\"}[24h]))",
+          "expr": "sum by(apiInterface) (increase(lava_provider_total_cu_serviced{instance=\"$environment\"}[24h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{apiInterface}}",
@@ -1336,7 +1347,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(spec) (increase(lava_provider_total_cu_serviced{job=\"provider-$environment\"}[24h]))",
+          "expr": "sum by(spec) (increase(lava_provider_total_cu_serviced{instance=\"$environment\"}[24h]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{apiInterface}}",
@@ -1437,7 +1448,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum(lava_provider_total_errored{job=\"provider-$environment\"})",
+          "expr": "sum(lava_provider_total_errored{instance=\"$environment\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -1607,7 +1618,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(apiInterface,spec) (rate(lava_provider_total_cu_serviced{job=\"provider-$environment\"}[10m]))",
+          "expr": "sum by(apiInterface,spec) (rate(lava_provider_total_cu_serviced{instance=\"$environment\"}[10m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{spec}}-{{apiInterface}}",
@@ -1690,7 +1701,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(spec) (rate(lava_provider_total_cu_serviced{job=\"provider-$environment\"}[1m]))",
+          "expr": "sum by(spec) (rate(lava_provider_total_cu_serviced{instance=\"$environment\"}[1m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1882,7 +1893,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(chain_id,result) (rate(cache_api_specifics{job=\"provider-$environment\"}[10m]))",
+          "expr": "sum by(chain_id,result) (rate(cache_api_specifics{instance=\"$environment\"}[10m]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "{{chain_id}}-{{result}}",
@@ -1965,7 +1976,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by(chain_id) (rate(cache_api_specifics{job=\"provider-$environment\"}[1m]))",
+          "expr": "sum by(chain_id) (rate(cache_api_specifics{instance=\"$environment\"}[1m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2067,7 +2078,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "cache_total_hits{job=\"provider-$environment\"}",
+          "expr": "cache_total_hits{instance=\"$environment\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -2160,7 +2171,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(cache_total_hits{job=\"provider-$environment\"}[1m])",
+          "expr": "rate(cache_total_hits{instance=\"$environment\"}[1m])",
           "instant": false,
           "legendFormat": "hits",
           "range": true,
@@ -2225,7 +2236,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "cache_total_misses{job=\"provider-$environment\"}",
+          "expr": "cache_total_misses{instance=\"$environment\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -2318,7 +2329,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(cache_total_misses{job=\"provider-$environment\"}[10m])",
+          "expr": "rate(cache_total_misses{instance=\"$environment\"}[10m])",
           "instant": false,
           "legendFormat": "misses",
           "range": true,
@@ -2337,30 +2348,26 @@
       {
         "current": {
           "selected": true,
-          "text": "mainnet",
-          "value": "mainnet"
+          "text": "testnet",
+          "value": "testnet"
         },
+        "definition": "label_values(lava_provider_frozen_status,instance)",
         "hide": 0,
         "includeAll": false,
         "label": "environment",
         "multi": false,
         "name": "environment",
-        "options": [
-          {
-            "selected": false,
-            "text": "testnet",
-            "value": "testnet"
-          },
-          {
-            "selected": true,
-            "text": "mainnet",
-            "value": "mainnet"
-          }
-        ],
-        "query": "testnet, mainnet",
-        "queryValue": "",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(lava_provider_frozen_status,instance)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
         "skipUrlSync": false,
-        "type": "custom"
+        "sort": 0,
+        "type": "query"
       }
     ]
   },
@@ -2372,6 +2379,6 @@
   "timezone": "",
   "title": "Lava Provider Dashboard",
   "uid": "lava-provider-dashboard",
-  "version": 40,
+  "version": 1,
   "weekStart": ""
 }
