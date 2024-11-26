@@ -1,117 +1,159 @@
-# Install updates and dependencies
+<p align="center">
+  <img height="75" height="auto" src="https://services.kjnodes.com/assets/images/logos/lava.png">
+</p>
+
+# Lava Provider Monitoring stack
+
+This project provides a monitoring solution for Lava Provider using Prometheus, Grafana, and Alertmanager. The stack enables real-time data visualization, monitoring, and alerting for your node's health and performance.
+
+## Installation
+
+Follow these steps to install the necessary dependencies and deploy the monitoring stack.
+
+### 1. Install Docker
+
+Install Docker, a containerization platform required for running the monitoring services:
+
 ```bash
 sudo apt-get update
-sudo apt install jq python3-pip -y
-```
+sudo apt-get -y install ca-certificates curl
 
-# Install docker
-```bash
-sudo apt-get install ca-certificates curl gnupg lsb-release wget -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-sudo chmod a+r /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io -y
+
+sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+sudo systemctl enable docker.service containerd.service
+sudo systemctl start docker.service containerd.service
 ```
 
-# Install docker compose
+### 2. Clone the Monitoring Stack Repository
+
+Clone the repository that contains the monitoring stack configuration:
+
 ```bash
-docker_compose_version=$(wget -qO- https://api.github.com/repos/docker/compose/releases/latest | jq -r ".tag_name")
-sudo wget -O /usr/bin/docker-compose "https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m`"
-sudo chmod +x /usr/bin/docker-compose
+rm -rf $HOME/lava-provider-monitoring
+git clone https://github.com/kjnodes/lava-provider-monitoring.git $HOME/lava-provider-monitoring
+cd $HOME/lava-provider-monitoring
 ```
 
-# Clone repository
-```bash
-cd $HOME && rm -rf lava-provider-monitoring
-git clone https://github.com/kj89/lava-provider-monitoring.git
-```
+## Pre-Configuration
 
-# Copy _.env.example_ into _.env_
-```bash
-cp $HOME/lava-provider-monitoring/config/.env.example $HOME/lava-provider-monitoring/config/.env
-```
+Before deploying the monitoring stack, configure Alerting and Prometheus settings.
 
-# Update values in _.env_ file
-```bash
-vim $HOME/lava-provider-monitoring/config/.env
-```
+### 1. Set Up Telegram Alerting
+
+Configure Alertmanager to send notifications via Telegram. Update the `YOUR_TELEGRAM_BOT_TOKEN` and `YOUR_TELEGRAM_USER_ID` in the Alertmanager configuration file.
 
 | KEY | VALUE |
 |---------------|-------------|
-| TELEGRAM_ADMIN | Your user id you can get from [@userinfobot](https://t.me/userinfobot). The bot will only reply to messages sent from the user. All other messages are dropped and logged on the bot's console |
-| TELEGRAM_TOKEN | Your telegram bot access token you can get from [@botfather](https://telegram.me/botfather). To generate new token just follow a few simple steps described [here](https://core.telegram.org/bots#6-botfather) |
+| YOUR_TELEGRAM_USER_ID | Your Telegram user ID can be obtained from [@userinfobot](https://t.me/userinfobot). |
+| YOUR_TELEGRAM_BOT_TOKEN | Get your bot token from [@botfather](https://telegram.me/botfather). Follow the steps outlined [here](https://core.telegram.org/bots#6-botfather) to create a new token. |
 
-# Export _.env_ file values into _.bash_profile_
+Edit the configuration file:
+
 ```bash
-echo "export $(xargs < $HOME/lava-provider-monitoring/config/.env)" > $HOME/.bash_profile
-source $HOME/.bash_profile
+vim $HOME/lava-provider-monitoring/alertmanager/alertmanager.yml
 ```
 
-# Adjust IP:PORT to match lava provider metrics endpoint in prometheus config file
+Example configuration:
+
+```yml
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+      - send_resolved: true
+        bot_token: '74064354354:AfeDFge7zdw-oJBOyf1CuEryo9gwpFfcw'
+        chat_id: 442175262
+        message: '{{ template "telegram.message" . }}'
+```
+
+### 2. Configure Prometheus
+
+Set up Prometheus by specifying the `IP` address and `ports` for your node services. Modify the `NODE_IP` and `METRIC_PORT` in the configuration file:
+
 ```bash
 vim $HOME/lava-provider-monitoring/prometheus/prometheus.yml
 ```
 
-# Run docker-compose
-Deploy the monitoring stack
-```bash
-cd $HOME/lava-provider-monitoring && docker-compose up -d
+Example configuration:
+
+```yml
+scrape_configs:
+  - job_name: prometheus
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - localhost:9090
+  - job_name: lava-provider
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 1.2.3.4:7780   # lava provider metrics endpoint
+        labels:
+          instance: mainnet
+  - job_name: lava-provider-cache
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - 1.2.3.4:7780   # lava provider cache metrics port
+        labels:
+          instance: mainnet
 ```
 
-ports used:
-- `8080` (alertmanager-bot)
-- `9090` (prometheus)
-- `9093` (alertmanager)
-- `9999` (grafana)
+## Monitoring stack deployment
 
-# Install lava-exporter
-
-## Download binaries
 ```bash
-sudo curl -Ls https://github.com/MELLIFERA-Labs/lava-exporter/releases/download/v1.0.0/lava-exporter-linux-v1.0.0-amd64 > /usr/local/bin/lava-exporter
-sudo chmod +x /usr/local/bin/lava-exporter
+docker compose up -d
 ```
 
-## Set config
-```bash
-mkdir -p $HOME/lava-exporter
-sudo tee $HOME/lava-exporter/config.toml > /dev/null << EOF
-# array of lava rest api endpoints. Will be used next URL if previous is down
-lava_rest_api = ['http://127.0.0.1:14417']
-# Your chains to track for your provider.
-# Name should be match with the chainID from this list:
-# https://rest-public-rpc.lavanet.xyz/lavanet/lava/spec/show_all_chains
-# Otherwise provider_frozen always will be 0
-chains = ['EVMOS', 'EVMOST', 'AXELAR', 'AXELART', 'AGR', 'AGRT', 'NEAR', 'NEART']
-# Your provider address
-lava_provider_address = 'lava@13j4r22xd0tegzagwhx39ptzxpzlvgyv7ykgrvw'
-EOF
+## Data Visualization Using Grafana
+
+Follow these steps to access and use the Lava Provider Dashboard in Grafana:
+
+1. Open Grafana in your web browser (default port: 9999).
+
+2. Log in using the default credentials `admin/admin`, then set a new password.
+
+3. Navigate to the `Dashboards` page to access the `Lava Provider Dashboard`.
+
+## Dashboard contents
+
+TBD
+
+## Alerting and Notifications
+
+Alertmanager triggers alerts and sends notifications via Telegram when configured conditions are met.
+
+### Alerting Rules (Conditions)
+
+1. Alert if instance is down.
+2. Alert if provider is frozen.
+
+Example of Telegram notification:
+
+<div style="text-align: center;">
+    <img src="images/telegram-alerts.png" alt="image" width="500" />
+</div>
+
+## Clean Up All Container Data
+
+> **Warning:** This will remove all container monitoring stack data.
+
+To stop and remove the monitoring stack and associated data, execute:
+
+```
+cd $HOME/lava-provider-monitoring
+docker compose down --volumes
 ```
 
-## Create service
-```bash
-sudo tee /etc/systemd/system/lava-exporter.service > /dev/null << EOF
-[Unit]
-Description=Lava Exporter
-After=network-online.target
+## Accessing the Monitoring Stack UI
 
-[Service]
-User=$USER
-ExecStart=/usr/local/bin/lava-exporter start --config $HOME/lava-exporter/config.toml --port 14440 
-Restart=on-failure
-RestartSec=3
-LimitNOFILE=65535
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-systemctl enable lava-exporter
-systemctl daemon-reload
-```
-
-## Start service and check logs
-```bash
-systemctl restart lava-exporter && journalctl -fu lava-exporter -o cat
-```
+You can access the monitoring tools using these ports:
+- Prometheus: 9090
+- Alertmanager: 9093
+- Grafana: 9999

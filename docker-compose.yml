@@ -1,17 +1,14 @@
-version: "3.5"
-
 volumes:
   prometheus_data: {}
   grafana_data: {}
-  alerta_db: {}
 
 networks:
-  cosmos-monitoring:
+  lava-monitoring:
 
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
+    container_name: lava-prometheus
     volumes:
        - type: volume
          source: prometheus_data
@@ -25,74 +22,35 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
     ports:
-      - 9090:9090
+      - 49090:9090
     networks:
-      - cosmos-monitoring
+      - lava-monitoring
     restart: always
 
   # default login credentials: admin/admin
   grafana:
     image: grafana/grafana:latest
     env_file: ./grafana/grafana.conf
-    container_name: grafana
+    container_name: lava-grafana
     volumes:
-      - type: volume
-        source: grafana_data
-        target: /var/lib/grafana
-      - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
     ports:
-      - 9999:3000
+      - 49999:3000
     networks:
-      - cosmos-monitoring
-    restart: always
-
-  alerta_db:
-    image: postgres:11
-    container_name: alerta_db
-    networks:
-     - cosmos-monitoring
-    volumes:
-      - type: volume
-        source: alerta_db
-        target: /var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: cosmos_monitoring
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-    hostname: 'alerta_db'
-    restart: always
-
-  alerta:
-    image: alerta/alerta-web:latest
-    container_name: alerta
-    networks:
-     - cosmos-monitoring
-    ports:
-       - 8083:8083
-    depends_on:
-      - alerta_db
-    volumes:
-      - type: bind
-        source: ./alerta/alertad.conf
-        target: /app/alertad.conf
-        read_only: true
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@alerta_db:5432/monitoring
-      - PLUGINS=reject,blackout
-    hostname: 'alerta'
+      - lava-monitoring
     restart: always
 
   alertmanager:
     image: prom/alertmanager:latest
-    container_name: alertmanager
+    container_name: lava-alertmanager
     networks:
-      - cosmos-monitoring
+      - lava-monitoring
     ports:
-      - 9093:9093
+      - 49093:9093
     volumes:
       - type: bind
-        source: ./prometheus/alert_manager
+        source: ./alertmanager
         target: /etc/alertmanager
         read_only: true
     command: [
@@ -101,23 +59,3 @@ services:
     ]
     hostname: 'alertmanager'
     restart: always
-
-  alertmanager-bot:
-    container_name: alertmanager-bot
-    command:
-      - '--alertmanager.url=http://alertmanager:9093'
-      - '--log.level=info'
-      - '--store=bolt'
-      - '--bolt.path=/data/bot.db'
-      - "--telegram.admin=${TELEGRAM_ADMIN}"
-      - "--telegram.token=${TELEGRAM_TOKEN}"
-    image: metalmatze/alertmanager-bot:0.4.3
-    networks:
-      - cosmos-monitoring
-    ports:
-      - 8080:8080
-    hostname: 'alertmanager-bot'
-    restart: always
-    volumes:
-      - ./data:/data
-      - ./default.tmpl:/templates/default.tmpl
