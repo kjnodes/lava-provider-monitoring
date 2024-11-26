@@ -2,7 +2,7 @@ groups:
   - name: Provider Monitoring
     rules:
 
-    - alert: NotInSync
+    - alert: ProviderFrozen
       expr: lava_provider_frozen_status == 1
       labels:
         severity: critical
