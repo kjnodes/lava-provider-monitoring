@@ -23,13 +23,13 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets:
-          - PROVIDER_IP:PROVIDER_PORT  # for example 1.2.3.4:14447
+          - PROVIDER_IP:PROVIDER_PORT  # for example 1.2.3.4:7780
         labels:
           instance: mainnet
   - job_name: lava-provider-cache
     metrics_path: /metrics
     static_configs:
       - targets:
-          - PROVIDER_IP:CACHE_PORT  # for example 1.2.3.4:7780
+          - PROVIDER_IP:CACHE_PORT  # for example 1.2.3.4:14447
         labels:
           instance: mainnet
