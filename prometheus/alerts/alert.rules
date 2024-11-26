@@ -7,7 +7,7 @@ groups:
       labels:
         severity: critical
       annotations:
-        description: '`{{ $labels.chain }}` provider is frozen.'
+        description: '`{{ $labels.chainID }}` provider is frozen.'
 
     - alert: InstanceDown
       expr: up == 0
