@@ -57,7 +57,7 @@ Configure Alertmanager to send notifications via Telegram. Update the `YOUR_TELE
 Edit the configuration file:
 
 ```bash
-vim $HOME/lava-provider-monitoring/alertmanager/alertmanager.yml
+vim alertmanager/alertmanager.yml
 ```
 
 Example configuration:
@@ -77,7 +77,7 @@ receivers:
 Set up Prometheus by specifying the `IP` address and `ports` for your node services. Modify the `NODE_IP` and `METRIC_PORT` in the configuration file:
 
 ```bash
-vim $HOME/lava-provider-monitoring/prometheus/prometheus.yml
+vim prometheus/prometheus.yml
 ```
 
 Example configuration:
